@@ -1,0 +1,20 @@
+﻿@page "/turmas/Delete/{id:int}"
+
+<h1 class="mb-3"> Delete Turma</h1>
+<p> Confirma a exclusão da Turma @Id?</p>
+<button class="btn-danger" @onclick="DeleteTurma">Excluir</button>
+<a class="btn btn-outline-primary" href="/Turmas">Voltar</a>
+
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    protected async Task DeleteTurma()
+    {
+        var response = await Http.DeleteAsync($"https://localhost:4000/api/Turmas/{Id}");
+        NavigationManager.NavigateTo("/Turmas");
+    }
+}

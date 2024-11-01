@@ -1,0 +1,75 @@
+﻿@page "/turmas/create"
+@using BlazorApp.Models
+@using System.Text.Json.Nodes
+@inject HttpClient http
+
+<div class="row">
+    <div class="col-lg-8">
+        <h1 class="mb-5">Nova Turma</h1>
+
+        <div class="row mb-3">
+            <label class="col-md-4 col-form-label">CursoId</label>
+            <div class="col-md-8">
+                <input type="text" class="form-control" @bind="TurmasData.CursoId" />
+                <span class="text-danger"> @Errors["CursoId"]?[0]</span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label class="col-md-4 col-form-label">Nome da Turma</label>
+            <div class="col-md-8">
+                <input type="text" class="form-control" @bind="TurmasData.NomeDaTurma" />
+                <span class="text-danger"> @Errors["NomeDaTurma"]?[0]</span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label class="col-md-4 col-form-label">Ano</label>
+            <div class="col-md-8">
+                <input type="text" class="form-control" @bind="TurmasData.Ano" />
+                <span class="text-danger"> @Errors["Ano"]?[0]</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="offset-md-4 col-md d-grid">
+                <button class="btn btn-primary" @onclick="CreateAluno">Salvar</button>
+            </div>
+            <div class="col-md-4 col-md d-grid">
+                <a class="btn btn-outline-primary" href="/Turmas">Voltar</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@inject NavigationManager NavigationManager
+@code {
+
+    public TurmaDto TurmasData { get; set; } = new();
+    public JsonNode Errors { get; set; } = new JsonObject();
+    protected async Task CreateAluno()
+    {
+        var response = await http.PostAsJsonAsync("https://localhost:4000/api/Turmas", TurmasData);
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/Turmas");
+
+        }
+        else
+        {
+            var strReponse = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Json Response: \n" + strReponse);
+
+            try
+            {
+                var jsonResponse = JsonNode.Parse(strReponse);
+                Errors = jsonResponse?["errors"] ?? new JsonObject();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }
+}

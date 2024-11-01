@@ -1,0 +1,48 @@
+﻿@page "/Turmas"
+@using BlazorApp.Models
+
+
+<h1 class="text-center mb-3">Listar Turmas</h1>
+<a class="btn btn alert-primary mb-3" href="/Turmas/Create"> Nova Turma </a>
+
+@if (turmas == null)
+{
+    <p><em> Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>CursoId</th>
+                <th>Nome da Turma</th>
+                <th>Ano</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var turma in turmas)
+            {
+                <tr>
+                    <td>@turma.Id</td>
+                    <td>@turma.CursoId</td>
+                    <td>@turma.NomeDaTurma</td>
+                    <td>@turma.Ano</td>
+                    <td style="white-space:nowrap">
+                        <a class="btn btn-primary btn-sm" href="/turmas/Edit/@turma.Id">Editar</a>
+                        <a class="btn btn-danger btn-sm" href="/turmas/Delete/@turma.Id">Inativar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@inject HttpClient Http
+@code {
+    private List<Turma>? turmas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        turmas = await Http.GetFromJsonAsync<List<Turma>>("https://localhost:4000/api/turmas");
+    }
+}

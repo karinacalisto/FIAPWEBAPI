@@ -1,0 +1,49 @@
+﻿@page "/relacionamentos"
+@using BlazorApp.Models
+
+
+<h1 class="text-center mb-3">Listar Relação Aluno e Turma</h1>
+<a class="btn btn alert-primary mb-3" href="/Relacionamentos/Create"> Associar Aluno </a>
+
+@if (relacionamentos == null)
+{
+    <p><em> Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome da Turma</th>
+                <th>Id da Turma</th>
+                <th>Nome do Aluno</th>
+                <th>Id do Aluno</th>
+                <th>Curso Id</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var relacionamento in relacionamentos)
+            {
+                <tr>
+                    <td>@relacionamento.NomeDaTurma</td>
+                    <td>@relacionamento.NomeAluno</td>
+                    <td> </td>
+                    <td>@relacionamento.CursoId</td>
+                    <td style="white-space:nowrap">
+                        <a class="btn btn-primary btn-sm" href="/Relacionamentos/Edit/@relacionamento.Aluno_Id">Editar</a>
+                        <a class="btn btn-danger btn-sm" href="/Relacionamentos/Delete/@relacionamento.Aluno_Id">Inativar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@inject HttpClient Http
+@code {
+    private List<Relacionamento>? relacionamentos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        relacionamentos = await Http.GetFromJsonAsync<List<Relacionamento>>("https://localhost:4000/api/Relacionamentos");
+    }
+}

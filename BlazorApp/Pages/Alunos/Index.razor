@@ -1,0 +1,49 @@
+﻿@page "/alunos"
+@using BlazorApp.Models
+
+
+<h1 class="text-center mb-3">Listar Alunos</h1>
+<a class="btn btn alert-primary mb-3" href="/Alunos/Create"> Novo Aluno </a>
+
+@if (alunos == null)
+{
+    <p><em> Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead> 
+            <tr>
+                <th>Id</th>
+                <th>Nome</th>
+                <th>Curso</th>
+                <th>Usuário</th>
+                <th>Opções</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var aluno in alunos)
+            {
+                <tr>
+                    <td>@aluno.Id</td>
+                    <td>@aluno.Nome</td>
+                    <td> </td>
+                    <td>@aluno.Usuario</td>
+                    <td style="white-space:nowrap">
+                        <a class="btn btn-primary btn-sm" href="/Alunos/Edit/@aluno.Id">Editar</a>
+                        <a class="btn btn-danger btn-sm" href="/Alunos/Delete/@aluno.Id">Inativar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@inject HttpClient Http
+@code {
+    private List<Aluno>? alunos; 
+
+    protected override async Task OnInitializedAsync()
+    {
+        alunos = await Http.GetFromJsonAsync<List<Aluno>>("https://localhost:4000/api/Alunos");
+    }
+}

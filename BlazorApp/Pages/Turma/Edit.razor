@@ -1,0 +1,103 @@
+﻿@page "/turmas/Edit/{id:int}"
+@using BlazorApp.Models
+@using System.Text.Json.Nodes
+
+<div class="row">
+    <div class="col-lg-8">
+        <h1 class="mb-5">Editar Turma</h1>
+
+        @if (turma == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <div class="row mb-3">
+                <label class="col-md-4 col-form-label">Turma Id</label>
+                <div class="col-md-8">
+                    <input class="form-control-plaintext" value="@Id" readonly />
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label class="col-md-4 col-form-label">Curso Id</label>
+                <div class="col-md-8">
+                    <input type="text" class="form-control" @bind="TurmasData.CursoId" />
+                    <span class="text-danger"> @Errors["Nome"]?[0]</span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label class="col-md-4 col-form-label">Nome da Turma</label>
+                <div class="col-md-8">
+                    <input type="text" class="form-control" @bind="TurmasData.NomeDaTurma" />
+                    <span class="text-danger"> @Errors["Usuario"]?[0]</span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label class="col-md-4 col-form-label">Ano</label>
+                <div class="col-md-8">
+                    <input type="text" class="form-control" @bind="TurmasData.Ano" />
+                    <span class="text-danger"> @Errors["Senha"]?[0]</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="offset-md-4 col-md d-grid">
+                    <button class="btn btn-primary" @onclick="EditAluno">Salvar</button>
+                </div>
+                <div class="col-md-4 col-md d-grid">
+                    <a class="btn btn-outline-primary" href="/Alunos">Voltar</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    public Turma? turma = null;
+    public TurmaDto TurmasData { get; set; } = new();
+    public JsonNode Errors { get; set; } = new JsonObject();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+
+            turma = await Http.GetFromJsonAsync<Turma>($"https://localhost:4000/api/Turmas/{Id}");
+            TurmasData.CursoId = turma.CursoId;
+            TurmasData.NomeDaTurma = turma?.NomeDaTurma ?? "";
+            TurmasData.Ano = turma.Ano;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Exception : " + ex.Message);
+        }
+    }
+
+    protected async Task EditAluno()
+    {
+        var response = await Http.PutAsJsonAsync($"https://localhost:4000/api/Alunos/" + Id, TurmasData);
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/Turmas");
+        }
+        else
+        {
+            var strReponse = await response.Content.ReadAsStringAsync();
+            try
+            {
+                var jsonResponse = JsonNode.Parse(strReponse);
+                Errors = jsonResponse?["errors"] ?? new JsonObject();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception : " + ex.Message);
+            }
+        }
+    }
+}
